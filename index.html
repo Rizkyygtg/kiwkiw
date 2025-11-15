@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rizky Jaya Abadi - SES & Analisis Data</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            margin: 0;
+            padding: 0;
+            color: #f0f0f0;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+        h2 {
+            font-size: 28px;
+            color: #00e5ff;
+            margin-bottom: 15px;
+            text-align: center;
+            animation: fadeInUp 1s ease;
+        }
+        p { line-height: 1.7; }
+
+        /* --- Halaman Company Profile --- */
+        #profilePage {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+            animation: fadeIn 1.2s ease;
+        }
+        #profilePage h1 {
+            font-size: 46px;
+            color: #00e5ff;
+            margin-bottom: 10px;
+            animation: glow 2s infinite alternate;
+            text-align: center;
+        }
+        .section {
+            max-width: 1000px;
+            margin: 40px auto;
+            background: rgba(30, 30, 30, 0.85);
+            padding: 25px;
+            border-radius: 18px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1s ease;
+        }
+        .section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .services {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .service-card {
+            background: #1c1c1c;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            animation: fadeInUp 1s ease;
+            cursor: pointer;
+        }
+        .service-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+        }
+        .service-card h3 { color: #ff9800; margin-bottom: 10px; }
+
+        /* --- Testimoni --- */
+        .testimonials {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .testimonial-card {
+            background: #1c1c1c;
+            border-radius: 12px;
+            padding: 20px;
+            font-style: italic;
+            position: relative;
+            animation: fadeInUp 1.2s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .testimonial-card::before {
+            content: "❝";
+            font-size: 40px;
+            color: #ff9800;
+            position: absolute;
+            top: 10px;
+            left: 15px;
+        }
+        .testimonial-card h4 {
+            margin-top: 15px;
+            color: #00e5ff;
+            font-style: normal;
+        }
+
+        #profilePage button {
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #ff5722, #ff9800);
+            color: #fff;
+            cursor: pointer;
+            transition: transform 0.25s, box-shadow 0.25s;
+            margin-top: 30px;
+        }
+        #profilePage button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.6);
+        }
+
+        /* --- Halaman Kalkulator SES & Analisis Data --- */
+        #calcPage, #analysisPage, #techConsultPage {
+            display: none;
+            padding: 0;
+            animation: fadeInUp 0.8s ease;
+        }
+        header {
+            text-align: center;
+            padding: 25px 20px;
+            background: linear-gradient(90deg, #2196f3, #00bcd4);
+            color: #fff;
+            font-size: 26px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        header span { animation: glow 2s infinite alternate; }
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            background: rgba(30, 30, 30, 0.9);
+            padding: 25px;
+            border-radius: 18px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin: 12px 0 6px;
+            color: #e0e0e0;
+        }
+        input, button, textarea {
+            padding: 12px;
+            width: 100%;
+            margin-bottom: 18px;
+            border: 1px solid #444;
+            border-radius: 10px;
+            font-size: 15px;
+            background: #2b2b2b;
+            color: #f0f0f0;
+        }
+        button {
+            background: linear-gradient(90deg, #ff5722, #ff9800);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.25s, box-shadow 0.25s;
+        }
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.6);
+        }
+        h3 {
+            margin-top: 25px;
+            color: #00e5ff;
+            border-left: 6px solid #2196f3;
+            padding-left: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        }
+        th, td {
+            border: 1px solid #444;
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        th {
+            background: #2196f3;
+            color: white;
+            font-size: 15px;
+        }
+        tr:nth-child(even) { background: #2b2b2b; }
+        tr:nth-child(odd) { background: #1e1e1e; }
+        tr:hover { background: #333 !important; transform: scale(1.01); }
+        canvas {
+            margin-top: 25px;
+            background: #1c1c1c;
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        }
+        footer {
+            text-align: center;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #aaa;
+            border-top: 1px solid #333;
+        }
+
+        /* Animasi */
+        @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+        @keyframes fadeInUp { from {opacity:0; transform:translateY(20px);} to {opacity:1; transform:translateY(0);} }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px #fff, 0 0 20px #00e5ff, 0 0 30px #00bcd4; }
+            to { text-shadow: 0 0 20px #00e5ff, 0 0 30px #00bcd4, 0 0 40px #2196f3; }
+        }
+        .back-btn { margin-top: 10px; background: linear-gradient(90deg, #4caf50, #8bc34a); }
+        #errorMetrics p, #descriptiveStats p {
+            background: #1c1c1c;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        .case-study-card {
+            background: #2b2b2b;
+            padding: 20px;
+            border-left: 5px solid #ff9800;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .case-study-card h4 {
+            color: #00e5ff;
+            margin-top: 0;
+        }
+        .contact-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Tampilan Konfirmasi */
+        #confirmationMessage {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+            background: #2b2b2b;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        #confirmationMessage h3 {
+            color: #4caf50;
+            font-size: 24px;
+            border-left: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="profilePage">
+        <h1>🏢 RIZKY JAYA ABADI</h1>
+
+        <div class="section"><h2>Tentang Kami</h2>
+            <p><b>Rizky Jaya Abadi</b> adalah perusahaan penyedia solusi data, teknologi, dan analisis bisnis untuk mendukung perkembangan usaha melalui sistem peramalan modern berbasis <i>Single Exponential Smoothing (SES)</i>.</p>
+        </div>
+
+        <div class="section"><h2>Visi & Misi</h2>
+            <p><b>Visi:</b> Menjadi penyedia solusi data terpercaya yang mendorong bisnis berkelanjutan.</p>
+            <p><b>Misi:</b></p>
+            <ul>
+                <li>Memberikan analisis data akurat & mudah dipahami.</li>
+                <li>Mendukung transformasi digital perusahaan.</li>
+                <li>Menghadirkan teknologi prediktif untuk bisnis.</li>
+            </ul>
+        </div>
+
+        <div class="section"><h2>Layanan Kami</h2>
+            <div class="services">
+                <div class="service-card" onclick="goToAnalysis()">
+                    <h3>📊 Analisis Data</h3>
+                    <p>Analisis mendalam untuk keputusan bisnis.</p>
+                </div>
+
+                <div class="service-card" onclick="goToCalc()">
+                    <h3>⚙️ Sistem Peramalan</h3>
+                    <p>Kalkulator SES untuk prediksi penjualan akurat.</p>
+                </div>
+
+                <div class="service-card" onclick="goToTechConsult()">
+                    <h3>💡 Konsultasi Teknologi</h3>
+                    <p>Bantuan integrasi solusi data ke bisnis Anda.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section"><h2>Testimoni Klien</h2>
+            <div class="testimonials">
+                <div class="testimonial-card"><p>"Layanan analisis data dari Rizky Jaya Abadi sangat membantu bisnis kami dalam perencanaan strategi."</p><h4>- PT Maju Bersama</h4></div>
+                <div class="testimonial-card"><p>"Forecasting SES membuat prediksi penjualan kami jauh lebih akurat."</p><h4>- CV Sukses Jaya</h4></div>
+                <div class="testimonial-card"><p>"Tim profesional, responsif, dan hasil memuaskan. Sangat direkomendasikan!"</p><h4>- UD Karya Abadi</h4></div>
+                <div class="testimonial-card"><p>"Gacor!"</p><h4>- UD Abah </h4></div>
+            </div>
+        </div>
+
+        <div class="section"><h2>Kontak</h2>
+            <p>Email: <a href="mailto:info@rizkyjayaabadi.com" style="color:#00e5ff">info@rizkyjayaabadi.com</a></p>
+            <p>Telepon: +62 8121 6344 834</p>
+            <p>Alamat: Jl.Sidokare, Sidoarjo, Indonesia</p>
+        </div>
+    </div>
+
+    <div id="calcPage">
+        <header><span>RIZKY JAYA ABADI - Kalkulator SES</span></header>
+        <div class="container">
+            <label for="fileInput"> Unggah Data Excel (satu kolom berisi data aktual):</label>
+            <input type="file" id="fileInput" accept=".xlsx, .xls">
+            <label for="alpha"> Masukkan Nilai Alpha (0 - 1):</label>
+            <input type="number" id="alpha" step="0.01" min="0" max="1" value="0.3">
+            <button onclick="tampilkanHasil()">Hitung Peramalan</button>
+            <button onclick="optimasiAlphaOtomatis()" style="background: linear-gradient(90deg, #4caf50, #8bc34a);">Optimasi Alpha Otomatis</button>
+            <button class="back-btn" onclick="goToProfile()"> Kembali ke Company Profile</button>
+            <h3> Hasil Peramalan SES</h3>
+            <div id="errorMetrics"></div>
+            <table id="resultTable"><thead><tr><th>Periode</th><th>Data Aktual</th><th>Forecast</th></tr></thead><tbody></tbody></table>
+            <canvas id="forecastChart"></canvas>
+        </div>
+        <footer>© 2025 Rizky Jaya Abadi | Sistem Peramalan SES</footer>
+    </div>
+
+    <div id="analysisPage">
+        <header><span>RIZKY JAYA ABADI - Analisis Data</span></header>
+        <div class="container">
+            <label for="fileInputAnalysis"> Unggah File Excel untuk Analisis:</label>
+            <input type="file" id="fileInputAnalysis" accept=".xlsx, .xls">
+            <button onclick="gunakanDataContoh('analysis')">Gunakan Data Contoh Demografi</button>
+            <div id="descriptiveStats"></div>
+            <canvas id="analysisChart"></canvas>
+            <button class="back-btn" onclick="goToProfile()">Kembali ke Company Profile</button>
+        </div>
+        <footer>© 2025 Rizky Jaya Abadi | Analisis Data</footer>
+    </div>
+
+    <div id="techConsultPage">
+        <header><span>RIZKY JAYA ABADI - Konsultasi Teknologi</span></header>
+        <div class="container">
+            <div id="mainContentTechConsult">
+                <h2>Integrasi Solusi Data & Teknologi</h2>
+                <p>Layanan konsultasi teknologi kami dirancang untuk membantu bisnis Anda memanfaatkan kekuatan data dan analisis. Kami tidak hanya memberikan data, tetapi juga membantu Anda mengintegrasikannya ke dalam operasional harian untuk efisiensi dan pertumbuhan yang maksimal.</p>
+
+                <h3>Pendekatan Kami</h3>
+                <p>Kami bekerja sama dengan Anda dalam empat langkah utama:</p>
+                <ul>
+                    <li><b>Identifikasi Kebutuhan:</b> Menganalisis alur kerja dan tantangan bisnis Anda.</li>
+                    <li><b>Desain Solusi:</b> Merancang sistem atau alur kerja yang terintegrasi dengan data.</li>
+                    <li><b>Implementasi:</b> Membantu penerapan teknologi dan melatih tim Anda.</li>
+                    <li><b>Dukungan Berkelanjutan:</b> Memberikan dukungan teknis pasca-implementasi.</li>
+                </ul>
+
+                <h3>Studi Kasus Sederhana</h3>
+                <div class="case-study-card">
+                    <h4>Sistem Manajemen Stok Berbasis Prediksi</h4>
+                    <p><b>Tantangan:</b> Sebuah perusahaan ritel mengalami kesulitan mengelola stok karena ketidakpastian permintaan pasar.</p>
+                    <p><b>Solusi:</b> Kami mengimplementasikan sistem peramalan SES untuk memprediksi permintaan bulanan. Data prediksi ini kemudian diintegrasikan ke dalam sistem manajemen stok mereka.</p>
+                    <p><b>Hasil:</b> Perusahaan berhasil mengurangi <b>biaya penyimpanan hingga 30%</b> dan <b>meningkatkan ketersediaan produk hingga 95%</b>, menghindari kerugian akibat kehabisan stok.</p>
+                </div>
+
+                <h3 style="margin-top: 30px;">Hubungi Kami untuk Konsultasi</h3>
+                <p>Jadwalkan sesi konsultasi gratis dengan mengisi formulir di bawah ini. Kami akan menghubungi Anda kembali dalam waktu 24 jam.</p>
+                <form id="contactForm" class="contact-form">
+                    <label for="nama">Nama Lengkap:</label>
+                    <input type="text" id="nama" name="nama" required>
+                    
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                    
+                    <label for="perusahaan">Perusahaan:</label>
+                    <input type="text" id="perusahaan" name="perusahaan">
+                    
+                    <label for="pesan">Pesan/Kebutuhan:</label>
+                    <textarea id="pesan" name="pesan" rows="5" required></textarea>
+                    
+                    <button type="submit" style="background: linear-gradient(90deg, #2196f3, #00bcd4;">Kirim Pesan</button>
+                </form>
+            </div>
+            
+            <div id="confirmationMessage">
+                <h3>✅ Pesan Anda Telah Terkirim!</h3>
+                <p>Terima kasih telah menghubungi kami. Tim kami akan segera meninjau pesan Anda dan merespons dalam waktu 24 jam kerja.</p>
+                <button class="back-btn" onclick="goToProfile()">Kembali ke Company Profile</button>
+            </div>
+        </div>
+        <footer>© 2025 Rizky Jaya Abadi | Konsultasi Teknologi</footer>
+    </div>
+
+    <script>
+        const sections = document.querySelectorAll('.section');
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('visible');
+            });
+        }, {threshold: 0.2});
+        sections.forEach(sec => observer.observe(sec));
+
+        function goToCalc() {
+            document.getElementById("profilePage").style.display = "none";
+            document.getElementById("calcPage").style.display = "block";
+            document.getElementById("analysisPage").style.display = "none";
+            document.getElementById("techConsultPage").style.display = "none";
+            window.scrollTo(0, 0);
+        }
+
+        function goToProfile() {
+            document.getElementById("calcPage").style.display = "none";
+            document.getElementById("analysisPage").style.display = "none";
+            document.getElementById("techConsultPage").style.display = "none";
+            document.getElementById("profilePage").style.display = "flex";
+            window.scrollTo(0, 0);
+        }
+
+        function goToAnalysis() {
+            document.getElementById("profilePage").style.display = "none";
+            document.getElementById("calcPage").style.display = "none";
+            document.getElementById("analysisPage").style.display = "block";
+            document.getElementById("techConsultPage").style.display = "none";
+            window.scrollTo(0, 0);
+        }
+
+        function goToTechConsult() {
+            document.getElementById("profilePage").style.display = "none";
+            document.getElementById("calcPage").style.display = "none";
+            document.getElementById("analysisPage").style.display = "none";
+            document.getElementById("techConsultPage").style.display = "block";
+            document.getElementById("mainContentTechConsult").style.display = "block";
+            document.getElementById("confirmationMessage").style.display = "none";
+            window.scrollTo(0, 0);
+        }
+
+        // ========== Variabel Global (Dipisahkan per Halaman) ==========
+        let dataAktualSES = [];
+        let dataAktualAnalysis = [];
+        let chartInstance = null;
+        let analysisChartInstance = null;
+        
+        // Data Contoh
+        const dataContohSES = [500, 520, 550, 530, 580, 600, 590, 620, 650, 640, 670, 700];
+        const dataContohAnalysis = [15000000, 18000000, 14500000, 21000000, 17500000, 19000000, 22000000, 16500000, 20500000, 23000000];
+
+        function gunakanDataContoh(type) {
+            if (type === 'ses') {
+                dataAktualSES = [...dataContohSES];
+                alert("✅ Data contoh penjualan berhasil dimuat!");
+                tampilkanHasil();
+            } else if (type === 'analysis') {
+                dataAktualAnalysis = [...dataContohAnalysis];
+                alert("✅ Data contoh demografi berhasil dimuat!");
+                tampilkanAnalisisDeskriptif();
+                renderAnalysisChart();
+            }
+        }
+
+        // ========== Kalkulator SES ==========
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let data = new Uint8Array(e.target.result);
+                let workbook = XLSX.read(data, {type: 'array'});
+                let sheet = workbook.Sheets[workbook.SheetNames[0]];
+                let json = XLSX.utils.sheet_to_json(sheet, {header: 1});
+                dataAktualSES = json.flat().filter(v => !isNaN(v) && v !== null);
+
+                if (dataAktualSES.length > 0) {
+                    alert("✅ Data dari file berhasil dimuat: " + dataAktualSES.length + " periode.");
+                } else {
+                    alert("⚠️ File tidak berisi data numerik yang valid.");
+                    dataAktualSES = [];
+                }
+            };
+            reader.readAsArrayBuffer(this.files[0]);
+        });
+        
+        function hitungSES(alpha) {
+            let forecast = [];
+            if (dataAktualSES.length === 0) return forecast;
+            forecast[0] = dataAktualSES[0];
+            for (let t = 1; t < dataAktualSES.length; t++) {
+                forecast[t] = alpha * dataAktualSES[t - 1] + (1 - alpha) * forecast[t - 1];
+            }
+            if (dataAktualSES.length > 0) {
+                const lastIndex = dataAktualSES.length - 1;
+                const forecastNext = alpha * dataAktualSES[lastIndex] + (1 - alpha) * forecast[lastIndex];
+                forecast.push(forecastNext);
+            }
+            return forecast;
+        }
+
+        function hitungError(data, forecast) {
+            let totalMAD = 0;
+            let totalMSE = 0;
+            let totalMAPE = 0;
+            let countMAPE = 0;
+
+            for (let i = 1; i < data.length; i++) {
+                let error = data[i] - forecast[i];
+                totalMAD += Math.abs(error);
+                totalMSE += Math.pow(error, 2);
+                if (data[i] !== 0) {
+                    totalMAPE += Math.abs(error / data[i]);
+                    countMAPE++;
+                }
+            }
+            const mad = totalMAD / (data.length - 1);
+            const mse = totalMSE / (data.length - 1);
+            const mape = (totalMAPE / countMAPE) * 100;
+
+            return { mad, mse, mape };
+        }
+
+        function optimasiAlphaOtomatis() {
+            if (dataAktualSES.length === 0) {
+                alert("⚠️ Unggah data atau gunakan data contoh terlebih dahulu!");
+                return;
+            }
+
+            let bestAlpha = 0;
+            let minMSE = Infinity;
+
+            for (let alpha = 0.01; alpha <= 1.0; alpha += 0.01) {
+                const forecast = hitungSES(alpha);
+                const mse = hitungError(dataAktualSES, forecast).mse;
+
+                if (mse < minMSE) {
+                    minMSE = mse;
+                    bestAlpha = alpha;
+                }
+            }
+
+            document.getElementById('alpha').value = bestAlpha.toFixed(2);
+            alert(`✨ Alpha Optimal Ditemukan: ${bestAlpha.toFixed(2)} (MSE: ${minMSE.toFixed(2)})`);
+            tampilkanHasil();
+        }
+
+        function tampilkanHasil() {
+            const alpha = parseFloat(document.getElementById('alpha').value);
+            if (dataAktualSES.length === 0) {
+                alert("⚠️ Unggah data atau gunakan data contoh terlebih dahulu!");
+                return;
+            }
+
+            const forecast = hitungSES(alpha);
+            const errors = hitungError(dataAktualSES, forecast);
+
+            let tbody = document.querySelector("#resultTable tbody");
+            tbody.innerHTML = "";
+            for (let i = 0; i < dataAktualSES.length; i++) {
+                let row = `<tr><td>${i + 1}</td><td>${dataAktualSES[i]}</td><td>${(forecast[i] || 0).toFixed(2)}</td></tr>`;
+                tbody.innerHTML += row;
+            }
+            if (dataAktualSES.length > 0) {
+                let nextPeriod = dataAktualSES.length + 1;
+                let nextForecast = forecast[forecast.length - 1];
+                let nextRow = `<tr style="font-weight: bold; color: #ffeb3b;"><td>${nextPeriod} (Prediksi)</td><td>-</td><td>${nextForecast.toFixed(2)}</td></tr>`;
+                tbody.innerHTML += nextRow;
+            }
+
+            let errorDisplay = document.getElementById('errorMetrics');
+            errorDisplay.innerHTML = `<h3>Metrik Akurasi</h3>
+            <p><b>MAD:</b> ${errors.mad.toFixed(2)}<br>
+            <b>MSE:</b> ${errors.mse.toFixed(2)}<br>
+            <b>MAPE:</b> ${errors.mape.toFixed(2)}%</p>`;
+
+            if (chartInstance) chartInstance.destroy();
+            let ctx = document.getElementById('forecastChart').getContext('2d');
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dataAktualSES.map((_, i) => "Periode " + (i + 1)).concat(`Periode ${dataAktualSES.length + 1} (Prediksi)`),
+                    datasets: [{
+                        label: 'Data Aktual',
+                        data: dataAktualSES.concat(null),
+                        borderColor: '#ff5722',
+                        fill: false,
+                        tension: 0.3
+                    }, {
+                        label: 'Forecast SES',
+                        data: [null].concat(forecast.slice(1)),
+                        borderColor: '#00e5ff',
+                        borderDash: [5, 5],
+                        fill: false,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#f0f0f0'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#ccc' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        },
+                        y: {
+                            ticks: { color: '#ccc' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ========== Halaman Analisis Data ==========
+        document.getElementById('fileInputAnalysis').addEventListener('change', function(e) {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let data = new Uint8Array(e.target.result);
+                let workbook = XLSX.read(data, {type: 'array'});
+                let sheet = workbook.Sheets[workbook.SheetNames[0]];
+                let json = XLSX.utils.sheet_to_json(sheet, {header: 1});
+                dataAktualAnalysis = json.flat().filter(v => !isNaN(v) && v !== null);
+
+                if (dataAktualAnalysis.length > 0) {
+                    alert("✅ Data dari file berhasil dimuat: " + dataAktualAnalysis.length + " periode.");
+                    tampilkanAnalisisDeskriptif();
+                    renderAnalysisChart();
+                } else {
+                    alert("⚠️ File tidak berisi data numerik yang valid.");
+                    dataAktualAnalysis = [];
+                }
+            };
+            reader.readAsArrayBuffer(this.files[0]);
+        });
+
+        function tampilkanAnalisisDeskriptif() {
+            if (dataAktualAnalysis.length === 0) {
+                document.getElementById('descriptiveStats').innerHTML = "Tidak ada data untuk dianalisis.";
+                return;
+            }
+            const sum = dataAktualAnalysis.reduce((a, b) => a + b, 0);
+            const mean = sum / dataAktualAnalysis.length;
+            const sortedData = [...dataAktualAnalysis].sort((a, b) => a - b);
+            const mid = Math.floor(sortedData.length / 2);
+            const median = sortedData.length % 2 !== 0 ? sortedData[mid] : (sortedData[mid - 1] + sortedData[mid]) / 2;
+            const min = sortedData[0];
+            const max = sortedData[sortedData.length - 1];
+            const range = max - min;
+
+            const variance = dataAktualAnalysis.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / (dataAktualAnalysis.length - 1);
+            const stdDev = Math.sqrt(variance);
+
+            let descDiv = document.getElementById('descriptiveStats');
+            descDiv.innerHTML = `<h3>Statistik Deskriptif</h3>
+            <p><b>Jumlah Data:</b> ${dataAktualAnalysis.length}<br>
+            <b>Total:</b> ${sum.toLocaleString('id-ID')}<br>
+            <b>Rata-rata (Mean):</b> ${mean.toFixed(2).toLocaleString('id-ID')}<br>
+            <b>Median:</b> ${median.toLocaleString('id-ID')}<br>
+            <b>Nilai Minimum:</b> ${min.toLocaleString('id-ID')}<br>
+            <b>Nilai Maksimum:</b> ${max.toLocaleString('id-ID')}<br>
+            <b>Rentang (Range):</b> ${range.toLocaleString('id-ID')}<br>
+            <b>Standar Deviasi:</b> ${stdDev.toFixed(2).toLocaleString('id-ID')}</p>`;
+        }
+
+        function renderAnalysisChart() {
+            if (dataAktualAnalysis.length === 0) return;
+            const labels = dataAktualAnalysis.map((_, i) => `Data ${i + 1}`);
+            if (analysisChartInstance) analysisChartInstance.destroy();
+            const ctx = document.getElementById("analysisChart").getContext("2d");
+            analysisChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Nilai Data',
+                        data: dataAktualAnalysis,
+                        backgroundColor: '#2196f3',
+                        borderColor: '#00e5ff',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#f0f0f0'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#ccc' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#ccc' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ========== Fungsionalitas Formulir Kontak ==========
+        document.getElementById('contactForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Mencegah halaman reload
+
+            const nama = document.getElementById('nama').value;
+            const email = document.getElementById('email').value;
+            const pesan = document.getElementById('pesan').value;
+
+            // Logika validasi sederhana
+            if (nama && email && pesan) {
+                // Sembunyikan formulir dan konten utama
+                document.getElementById('mainContentTechConsult').style.display = 'none';
+                
+                // Tampilkan pesan konfirmasi
+                document.getElementById('confirmationMessage').style.display = 'block';
+
+                // Opsional: Reset formulir setelah terkirim
+                this.reset();
+            } else {
+                alert('⚠️ Mohon lengkapi semua data yang wajib diisi (Nama, Email, Pesan).');
+            }
+        });
+    </script>
+</body>
+</html>
